@@ -6,7 +6,7 @@ plugins {
 android {
     namespace = "com.mjapa21.smartwallet"
     compileSdk {
-        version = release(36) {
+        version = release(37) { //changed this from 36 to 37 to fix BUILD error
             minorApiLevel = 1
         }
     }
