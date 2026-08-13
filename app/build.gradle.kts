@@ -65,4 +65,11 @@ dependencies {
     ksp("androidx.room:room-compiler:$room_version")
     implementation("androidx.room:room-ktx:${room_version}")
 
+
+    //Koin for dependecy injection
+    implementation(platform("io.insert-koin:koin-bom:4.2.0"))
+    implementation("io.insert-koin:koin-android")
+    implementation("io.insert-koin:koin-compose")
+    implementation("io.insert-koin:koin-compose-viewmodel")
+
 }
