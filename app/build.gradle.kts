@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp") version "2.3.10"
+
+    kotlin("plugin.serialization") version "2.4.0" //For Kotlin serialization (for navigation3)
 }
 
 android {
@@ -75,5 +77,11 @@ dependencies {
 
     //DataStore
     implementation("androidx.datastore:datastore-preferences:1.2.1")
+
+    //Navigation3
+    implementation("androidx.navigation3:navigation3-runtime:1.1.3")
+    implementation("androidx.navigation3:navigation3-ui:1.1.3")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-navigation3:2.11.0")
+
 
 }
