@@ -72,4 +72,8 @@ dependencies {
     implementation("io.insert-koin:koin-compose")
     implementation("io.insert-koin:koin-compose-viewmodel")
 
+
+    //DataStore
+    implementation("androidx.datastore:datastore-preferences:1.2.1")
+
 }
