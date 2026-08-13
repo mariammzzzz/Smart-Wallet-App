@@ -1,4 +1,4 @@
-package com.mjapa21.smartwallet
+package com.mjapa21.smartwallet.presentation
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
