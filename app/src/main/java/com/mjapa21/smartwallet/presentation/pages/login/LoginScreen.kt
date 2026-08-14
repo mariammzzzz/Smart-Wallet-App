@@ -1,5 +1,6 @@
-package com.mjapa21.smartwallet.presentation.pages
+package com.mjapa21.smartwallet.presentation.pages.login
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,12 +15,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
@@ -28,23 +28,54 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.koin.compose.viewmodel.koinViewModel
+
 
 @Composable
 fun LoginScreen(
-    onSubmit: (
-        name: String,
-        cardNumber: String,
-        cvv: String,
-        expiryDate: String,
-        monthlyIncome: String
-    ) -> Unit = { _, _, _, _, _ -> }
+    onRegistrationComplete: () -> Unit,
+    viewModel: LoginViewModel = koinViewModel()
 ) {
-    var name by remember { mutableStateOf("") }
-    var cardNumber by remember { mutableStateOf("") }
-    var cvv by remember { mutableStateOf("") }
-    var expiryDate by remember { mutableStateOf("") }
-    var monthlyIncome by remember { mutableStateOf("") }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
+    // Collects one-time events (Toast, navigation) exactly once each, in order,
+    // for as long as this composable is in the composition.
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is LoginEvent.ShowError ->
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+
+                LoginEvent.NavigateToHome ->
+                    onRegistrationComplete()
+            }
+        }
+    }
+
+    LoginContent(
+        uiState = uiState,
+        onNameChange = viewModel::onNameChange,
+        onCardNumberChange = viewModel::onCardNumberChange,
+        onCvvChange = viewModel::onCvvChange,
+        onExpiryDateChange = viewModel::onExpiryDateChange,
+        onMonthlyIncomeChange = viewModel::onMonthlyIncomeChange,
+        onSubmit = viewModel::onSubmit
+    )
+}
+
+
+@Composable
+fun LoginContent(
+    uiState: LoginUiState,
+    onNameChange: (String) -> Unit = {},
+    onCardNumberChange: (String) -> Unit = {},
+    onCvvChange: (String) -> Unit = {},
+    onExpiryDateChange: (String) -> Unit = {},
+    onMonthlyIncomeChange: (String) -> Unit = {},
+    onSubmit: () -> Unit = {}
+) {
     // Outer column: scrollable fields take all available space, button is pinned below them.
     // imePadding() on this outer container pushes the whole bottom section (the button)
     // up above the keyboard when it's open, instead of letting the keyboard cover it.
@@ -65,8 +96,8 @@ fun LoginScreen(
 
             Text(text = "Personal Info")
             OutlinedTextField(
-                value = name,
-                onValueChange = { name = it },
+                value = uiState.name,
+                onValueChange = onNameChange,
                 label = { Text(text = "Full Name") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
@@ -74,11 +105,8 @@ fun LoginScreen(
 
             Text(text = "Card Info")
             OutlinedTextField(
-                value = cardNumber,
-                onValueChange = { input ->
-                    // we keep digits only, cap at 16 digits (max 16 digit card number)
-                    cardNumber = input.filter { it.isDigit() }.take(16)
-                },
+                value = uiState.cardNumber,
+                onValueChange = onCardNumberChange,
                 label = { Text(text = "Card Number") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -90,12 +118,8 @@ fun LoginScreen(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 OutlinedTextField(
-                    value = expiryDate,
-                    onValueChange = { input ->
-                        // store raw digits only (no "/") — the slash is purely a display concern,
-                        // handled below by ExpiryDateVisualTransformation
-                        expiryDate = input.filter { it.isDigit() }.take(4)
-                    },
+                    value = uiState.expiryDate,
+                    onValueChange = onExpiryDateChange,
                     label = { Text(text = "MM/YY") },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -104,10 +128,8 @@ fun LoginScreen(
                 )
 
                 OutlinedTextField(
-                    value = cvv,
-                    onValueChange = { input ->
-                        cvv = input.filter { it.isDigit() }.take(4)
-                    },
+                    value = uiState.cvv,
+                    onValueChange = onCvvChange,
                     label = { Text(text = "CVV") },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -118,10 +140,8 @@ fun LoginScreen(
 
             Text(text = "Income")
             OutlinedTextField(
-                value = monthlyIncome,
-                onValueChange = { input ->
-                    monthlyIncome = input.filter { it.isDigit() || it == '.' }
-                },
+                value = uiState.monthlyIncome,
+                onValueChange = onMonthlyIncomeChange,
                 label = { Text(text = "Monthly Income") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -132,20 +152,21 @@ fun LoginScreen(
         // button is pinned outside the scroll — always visible right above the keyboard (or at
         // the bottom of the screen when the keyboard is closed).
         Button(
-            onClick = { onSubmit(name, cardNumber, cvv, expiryDate, monthlyIncome) },
+            onClick = onSubmit,
+            enabled = !uiState.isLoading,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 24.dp, end = 24.dp, top = 16.dp)
         ) {
-            Text(text = "Continue")
+            Text(text = if (uiState.isLoading) "Saving..." else "Continue")
         }
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-private fun LoginScreenPreview() {
-    LoginScreen()
+private fun LoginContentPreview() {
+    LoginContent(uiState = LoginUiState())
 }
 
 /**

@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
-import com.mjapa21.smartwallet.presentation.pages.HomeScreen
-import com.mjapa21.smartwallet.presentation.pages.LoginScreen
+import com.mjapa21.smartwallet.presentation.pages.home.HomeScreen
+import com.mjapa21.smartwallet.presentation.pages.login.LoginScreen
 
 @Composable
 fun NavigationRoot() {
@@ -18,9 +18,7 @@ fun NavigationRoot() {
             }
 
             is Destinations.Login -> NavEntry(navKey) {
-                LoginScreen(onSubmit = { _, _, _, _, _ -> //todo handle login submission
-
-                })
+                LoginScreen(onRegistrationComplete = {})
             }
 
             else -> throw IllegalStateException("Unknown destination: $navKey")
