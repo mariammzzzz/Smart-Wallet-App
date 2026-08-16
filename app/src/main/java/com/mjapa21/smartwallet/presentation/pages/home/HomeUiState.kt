@@ -1,11 +1,11 @@
 package com.mjapa21.smartwallet.presentation.pages.home
 
 data class HomeUiState(
-    val userName: String,
-    val currentDate: String,
-    val cardInfo: CardInfo,
-    val balanceInfo: BalanceInfo,
-    val recentTransactions: List<TransactionInfo>,
+    val userName: String = "",
+    val currentDate: String = "",
+    val cardInfo: CardInfo? = null,
+    val balanceInfo: BalanceInfo? = null,
+    val recentTransactions: List<TransactionInfo>? = null,
 ) {
     companion object {
         //todo remove later, this is just for now
@@ -47,9 +47,9 @@ data class CardInfo(
 
 data class BalanceInfo(
     val monthlyIncome: String,
-    val monthlyExpenses: String,
-    val balance: String,
-    val spentPercentage: Int,
+    val monthlyExpenses: String = "", //todo check these later
+    val balance: String = "",
+    val spentPercentage: Int = 0,
 )
 
 data class TransactionInfo(

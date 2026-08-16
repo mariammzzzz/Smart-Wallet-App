@@ -2,8 +2,9 @@ package com.mjapa21.smartwallet.presentation.pages.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mjapa21.smartwallet.domain.model.CardDetails
 import com.mjapa21.smartwallet.domain.model.UserPreferences
-import com.mjapa21.smartwallet.domain.usecases.SaveUserUseCase
+import com.mjapa21.smartwallet.domain.usecases.SaveUserWithCardUseCase
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,8 +38,8 @@ sealed interface LoginEvent {
     data object NavigateToHome : LoginEvent
 }
 
-//TODO: need to replace with real use case once the domain layer is wired up
-class LoginViewModel(private val saveUserUseCase: SaveUserUseCase) : ViewModel() {
+
+class LoginViewModel(private val saveUserWithCardUseCase: SaveUserWithCardUseCase) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
@@ -83,19 +84,18 @@ class LoginViewModel(private val saveUserUseCase: SaveUserUseCase) : ViewModel()
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             try {
-                // TODO: call loginUserUseCase(
-                //     name = state.name,
-                //     cardNumber = state.cardNumber,
-                //     cvv = state.cvv,
-                //     expiryDate = state.expiryDate,
-                //     monthlyIncome = state.monthlyIncome
-                // )
-                // This is where card -> Room and name/income -> DataStore will happen
-                saveUserUseCase(
+                val income = state.monthlyIncome.toDoubleOrNull() ?: 0.0
+
+                saveUserWithCardUseCase(
                     userDetails = UserPreferences(
                         name = state.name,
-                        monthlyIncome = state.monthlyIncome.toDouble(),
-                        isOnboardingComplete = true
+                        monthlyIncome = income,
+                        isOnboardingComplete = true // forced again inside the use case regardless
+                    ),
+                    card = CardDetails(
+                        cardNumber = state.cardNumber,
+                        cvv = state.cvv,
+                        expiryDate = state.expiryDate
                     )
                 )
                 _uiState.update { it.copy(isLoading = false) }

@@ -109,7 +109,8 @@ private fun WelcomeHeader(userName: String, currentDate: String) {
 }
 
 @Composable
-private fun CreditCard(cardInfo: CardInfo) {
+private fun CreditCard(cardInfo: CardInfo?) {
+    if (cardInfo == null) return
     val maskedNumber = formatCardNumber(cardInfo.cardNumber)
 
     Box(
@@ -156,7 +157,7 @@ private fun CreditCard(cardInfo: CardInfo) {
                         color = Color.White.copy(alpha = 0.7f)
                     )
                     Text(
-                        text = cardInfo.expiryDate,
+                        text = cardInfo.expiryDate.formatToDDMM(),
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.White
                     )
@@ -186,18 +187,9 @@ private fun formatCardNumber(cardNumber: String): String {
     return cardNumber.chunked(4).joinToString(" ")
 }
 
-//private fun maskCardNumber(cardNumber: String): String {
-//    if (cardNumber.length < 4) return cardNumber
-//
-//
-//
-//    val lastFour = cardNumber.takeLast(4)
-//    return "•••• •••• •••• $lastFour"
-//
-//}
-
 @Composable
-private fun BalanceSummary(balanceInfo: BalanceInfo) {
+private fun BalanceSummary(balanceInfo: BalanceInfo?) {
+    if (balanceInfo == null) return
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
@@ -246,9 +238,10 @@ private fun BalanceStat(label: String, value: String) {
 
 @Composable
 private fun RecentTransactionsSection(
-    transactions: List<TransactionInfo>,
+    transactions: List<TransactionInfo>?,
     onSeeAllClick: () -> Unit
 ) {
+    if (transactions == null) return
     Column {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -274,6 +267,10 @@ private fun RecentTransactionsSection(
             }
         }
     }
+}
+
+private fun String.formatToDDMM(): String {
+    return this.chunked(2).joinToString(separator = "/")
 }
 
 @Composable

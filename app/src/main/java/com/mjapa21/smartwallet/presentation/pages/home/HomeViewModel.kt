@@ -2,6 +2,8 @@ package com.mjapa21.smartwallet.presentation.pages.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mjapa21.smartwallet.domain.model.CardDetails
+import com.mjapa21.smartwallet.domain.usecases.GetCardDetailsUseCase
 import com.mjapa21.smartwallet.domain.usecases.GetUserUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,10 +15,11 @@ import java.util.Date
 import java.util.Locale
 
 class HomeViewModel(
-    private val getUserUseCase: GetUserUseCase
+    private val getUserUseCase: GetUserUseCase,
+    private val getCardDetailsUseCase: GetCardDetailsUseCase
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(HomeUiState.mock()) //todo replace this later
+    private val _uiState = MutableStateFlow(HomeUiState()) //todo replace this later
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     init {
@@ -25,16 +28,18 @@ class HomeViewModel(
 
     private fun loadHomeData() {
         viewModelScope.launch {
-            //todo replace with real use cases and data fetching from db
+            //todo replace balanceInfo!!! /recentTransactions with real data from Room
             val user = getUserUseCase()
+            val card = getCardDetailsUseCase()
 
             _uiState.update { current ->
                 current.copy(
                     userName = user.name,
                     currentDate = formatToday(),
-                    balanceInfo = current.balanceInfo.copy(
+                    balanceInfo = BalanceInfo(
                         monthlyIncome = formatCurrency(user.monthlyIncome)
-                    )
+                    ),
+                    cardInfo = card?.toCardInfo() ?: current.cardInfo
                 )
             }
         }
@@ -47,5 +52,13 @@ class HomeViewModel(
 
     private fun formatCurrency(amount: Double): String {
         return "₾" + "%,.2f".format(Locale.US, amount)
+    }
+
+    private fun CardDetails.toCardInfo(): CardInfo {
+        return CardInfo(
+            cardNumber = cardNumber,
+            cvv = cvv,
+            expiryDate = expiryDate
+        )
     }
 }
