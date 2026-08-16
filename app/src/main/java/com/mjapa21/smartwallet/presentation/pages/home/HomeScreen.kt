@@ -1,5 +1,6 @@
 package com.mjapa21.smartwallet.presentation.pages.home
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,12 +24,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,16 +46,36 @@ fun HomeScreen(
     viewModel: HomeViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val addTransactionState by viewModel.addTransactionState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is HomeEvent.ShowError ->
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     HomeContent(
         uiState = uiState,
-        onAddTransactionClick = {
-            // TODO: bottom sheet
-        },
+        onAddTransactionClick = viewModel::onAddTransactionClick,
         onSeeAllTransactionsClick = {
-            // TODO: navgiate to full transactions list
+            // TODO: navigate to full transactions list
         }
     )
+
+    if (uiState.isAddTransactionSheetVisible) {
+        AddTransactionBottomSheet(
+            state = addTransactionState,
+            onTitleChange = viewModel::onTransactionTitleChange,
+            onAmountChange = viewModel::onTransactionAmountChange,
+            onTypeToggle = viewModel::onTransactionTypeToggle,
+            onSaveClick = viewModel::onSaveTransactionClick,
+            onDismiss = viewModel::onDismissAddTransactionSheet
+        )
+    }
 }
 
 
@@ -241,7 +264,7 @@ private fun RecentTransactionsSection(
     transactions: List<TransactionInfo>?,
     onSeeAllClick: () -> Unit
 ) {
-    if (transactions == null) return
+    if (transactions.isNullOrEmpty()) return //even if we fetched transactions already but its empty we dont draw the section
     Column {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -297,7 +320,7 @@ private fun TransactionRow(transaction: TransactionInfo) {
             text = transaction.amount,
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Medium,
-            color = if (transaction.amount.startsWith("-")) { //todo check this later
+            color = if (transaction.amount.startsWith("-")) {
                 MaterialTheme.colorScheme.error
             } else {
                 MaterialTheme.colorScheme.primary

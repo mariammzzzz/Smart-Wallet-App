@@ -13,7 +13,9 @@ import com.mjapa21.smartwallet.domain.repository.CardRepository
 import com.mjapa21.smartwallet.domain.repository.TransactionsRepository
 import com.mjapa21.smartwallet.domain.repository.UserPreferencesRepository
 import com.mjapa21.smartwallet.domain.usecases.GetCardDetailsUseCase
+import com.mjapa21.smartwallet.domain.usecases.GetTransactionsUseCase
 import com.mjapa21.smartwallet.domain.usecases.GetUserUseCase
+import com.mjapa21.smartwallet.domain.usecases.SaveTransactionUseCase
 import com.mjapa21.smartwallet.domain.usecases.SaveUserWithCardUseCase
 import org.koin.dsl.module
 
@@ -49,7 +51,7 @@ val dataModule = module {
     single<CardRepository> { CardRepositoryImpl(get()) }
 
 
-    //more usecases
+    //more USECASES
     factory<SaveUserWithCardUseCase> {
         SaveUserWithCardUseCase(
             get(),
@@ -60,5 +62,11 @@ val dataModule = module {
     factory<GetCardDetailsUseCase> {
         GetCardDetailsUseCase(get())
     }
+
+    factory<GetTransactionsUseCase> {
+        GetTransactionsUseCase(get())
+    }
+
+    factory<SaveTransactionUseCase> { SaveTransactionUseCase(get()) }
 
 }

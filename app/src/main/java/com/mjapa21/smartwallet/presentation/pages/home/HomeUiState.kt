@@ -6,9 +6,10 @@ data class HomeUiState(
     val cardInfo: CardInfo? = null,
     val balanceInfo: BalanceInfo? = null,
     val recentTransactions: List<TransactionInfo>? = null,
+    val isAddTransactionSheetVisible: Boolean = false
 ) {
     companion object {
-        //todo remove later, this is just for now
+        //Mock ui state object for the HomeScreenPreview
         fun mock() = HomeUiState(
             userName = "",
             currentDate = "",
@@ -38,6 +39,13 @@ data class HomeUiState(
     }
 }
 
+//this is for the bottom sheet ui state
+data class AddTransactionUiState(
+    val title: String = "",
+    val amount: String = "",
+    val isIncome: Boolean = false, // false = expense, true = income
+    val isBeingSavedLocally: Boolean = false
+)
 
 data class CardInfo(
     val cardNumber: String,
@@ -47,14 +55,14 @@ data class CardInfo(
 
 data class BalanceInfo(
     val monthlyIncome: String,
-    val monthlyExpenses: String = "", //todo check these later
+    val monthlyExpenses: String = "",
     val balance: String = "",
     val spentPercentage: Int = 0,
 )
 
 data class TransactionInfo(
-    val id: String,
     val title: String,
     val amount: String,
     val date: String,
+    val id: String? = null,
 )
