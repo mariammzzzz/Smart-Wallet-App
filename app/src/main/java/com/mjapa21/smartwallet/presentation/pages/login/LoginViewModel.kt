@@ -2,6 +2,8 @@ package com.mjapa21.smartwallet.presentation.pages.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mjapa21.smartwallet.domain.model.UserPreferences
+import com.mjapa21.smartwallet.domain.usecases.SaveUserUseCase
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,6 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * everything the LoginScreen needs to render itself, in one immutable snapshot
@@ -35,7 +38,7 @@ sealed interface LoginEvent {
 }
 
 //TODO: need to replace with real use case once the domain layer is wired up
-class LoginViewModel : ViewModel() {
+class LoginViewModel(private val saveUserUseCase: SaveUserUseCase) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
@@ -88,9 +91,17 @@ class LoginViewModel : ViewModel() {
                 //     monthlyIncome = state.monthlyIncome
                 // )
                 // This is where card -> Room and name/income -> DataStore will happen
-
+                saveUserUseCase(
+                    userDetails = UserPreferences(
+                        name = state.name,
+                        monthlyIncome = state.monthlyIncome.toDouble(),
+                        isOnboardingComplete = true
+                    )
+                )
                 _uiState.update { it.copy(isLoading = false) }
                 _events.send(LoginEvent.NavigateToHome)
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 _uiState.update { it.copy(isLoading = false) }
                 _events.send(

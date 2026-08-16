@@ -8,9 +8,9 @@ import com.mjapa21.smartwallet.presentation.pages.home.HomeScreen
 import com.mjapa21.smartwallet.presentation.pages.login.LoginScreen
 
 @Composable
-fun NavigationRoot() {
+fun NavigationRoot(startDestination: Destinations) {
 
-    val backStack = rememberNavBackStack(Destinations.Login) //todo check this later
+    val backStack = rememberNavBackStack(startDestination)
     NavDisplay(backStack = backStack) { navKey ->
         when (navKey) {
             is Destinations.Home -> NavEntry(navKey) {
@@ -18,7 +18,10 @@ fun NavigationRoot() {
             }
 
             is Destinations.Login -> NavEntry(navKey) {
-                LoginScreen(onRegistrationComplete = {})
+                LoginScreen(onRegistrationComplete = {
+                    if (backStack.isNotEmpty()) backStack.removeAt(backStack.lastIndex)
+                    backStack.add(Destinations.Home)
+                })
             }
 
             else -> throw IllegalStateException("Unknown destination: $navKey")
