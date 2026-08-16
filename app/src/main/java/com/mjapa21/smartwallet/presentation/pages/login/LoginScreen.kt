@@ -1,6 +1,7 @@
 package com.mjapa21.smartwallet.presentation.pages.login
 
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +13,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -28,9 +31,9 @@ import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
-
 
 @Composable
 fun LoginScreen(
@@ -65,7 +68,6 @@ fun LoginScreen(
     )
 }
 
-
 @Composable
 fun LoginContent(
     uiState: LoginUiState,
@@ -81,6 +83,7 @@ fun LoginContent(
     // up above the keyboard when it's open, instead of letting the keyboard cover it.
     Column(
         modifier = Modifier
+            .background(MaterialTheme.colorScheme.background)
             .fillMaxSize()
             .safeDrawingPadding() //this was also needed to avoif the content being covered by the navigation bar or top-notch on some devices
     ) {
@@ -94,7 +97,8 @@ fun LoginContent(
             verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
         ) {
 
-            Text(text = "Personal Info")
+            SectionTitle("Personal Info")
+
             OutlinedTextField(
                 value = uiState.name,
                 onValueChange = onNameChange,
@@ -103,7 +107,8 @@ fun LoginContent(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Text(text = "Card Info")
+            SectionTitle("Card Info")
+
             OutlinedTextField(
                 value = uiState.cardNumber,
                 onValueChange = onCardNumberChange,
@@ -138,7 +143,8 @@ fun LoginContent(
                 )
             }
 
-            Text(text = "Income")
+            SectionTitle("Income")
+
             OutlinedTextField(
                 value = uiState.monthlyIncome,
                 onValueChange = onMonthlyIncomeChange,
@@ -158,9 +164,28 @@ fun LoginContent(
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp, vertical = 16.dp)
         ) {
-            Text(text = if (uiState.isLoading) "Saving..." else "Continue")
+            Text(
+                text = if (uiState.isLoading) "Saving..." else "Continue"
+            )
         }
     }
+}
+
+@Composable
+private fun SectionTitle(
+    title: String
+) {
+    Text(
+        text = title.uppercase(),
+        modifier = Modifier.padding(
+            top = 20.dp,
+            bottom = 8.dp
+        ),
+        style = MaterialTheme.typography.labelLarge,
+        fontWeight = FontWeight.Bold,
+        letterSpacing = 1.2.sp,
+        color = MaterialTheme.colorScheme.primary
+    )
 }
 
 @Preview(showBackground = true)
@@ -176,6 +201,7 @@ private fun LoginContentPreview() {
  * Visual transformation fixes that issue by keeping the raw text as is and only changing how it is displayed to the user, while also keeping track of cursor position
  */
 class ExpiryDateVisualTransformation : VisualTransformation {
+
     override fun filter(text: AnnotatedString): TransformedText {
         val digits = text.text.take(4)
 
