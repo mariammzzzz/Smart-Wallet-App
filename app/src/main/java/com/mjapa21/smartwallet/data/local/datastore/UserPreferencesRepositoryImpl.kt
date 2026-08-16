@@ -1,4 +1,4 @@
-package com.mjapa21.smartwallet.data.local
+package com.mjapa21.smartwallet.data.local.datastore
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences

@@ -3,8 +3,8 @@ package com.mjapa21.smartwallet.di
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import com.mjapa21.smartwallet.data.local.UserPreferencesRepositoryImpl
-import com.mjapa21.smartwallet.data.local.userDataStore
+import com.mjapa21.smartwallet.data.local.datastore.UserPreferencesRepositoryImpl
+import com.mjapa21.smartwallet.data.local.datastore.userDataStore
 import com.mjapa21.smartwallet.domain.repository.UserPreferencesRepository
 import com.mjapa21.smartwallet.domain.usecases.GetUserUseCase
 import com.mjapa21.smartwallet.domain.usecases.SaveUserUseCase
