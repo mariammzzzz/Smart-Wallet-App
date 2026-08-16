@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -77,12 +77,12 @@ fun LoginContent(
     onSubmit: () -> Unit = {}
 ) {
     // Outer column: scrollable fields take all available space, button is pinned below them.
-    // imePadding() on this outer container pushes the whole bottom section (the button)
+    // safeDrawingPadding() on this outer container pushes the whole bottom section (the button)
     // up above the keyboard when it's open, instead of letting the keyboard cover it.
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .imePadding()
+            .safeDrawingPadding() //this was also needed to avoif the content being covered by the navigation bar or top-notch on some devices
     ) {
 
         Column(
@@ -156,7 +156,7 @@ fun LoginContent(
             enabled = !uiState.isLoading,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 24.dp, end = 24.dp, top = 16.dp)
+                .padding(horizontal = 24.dp, vertical = 16.dp)
         ) {
             Text(text = if (uiState.isLoading) "Saving..." else "Continue")
         }
