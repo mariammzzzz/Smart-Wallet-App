@@ -8,7 +8,8 @@ fun TransactionDbo.toDomain(): TransactionDetails {
     return TransactionDetails(
         name = name,
         amount = amount,
-        date = date
+        date = date,
+        id = id
     )
 }
 

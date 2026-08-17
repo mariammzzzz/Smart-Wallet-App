@@ -43,6 +43,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun HomeScreen(
+    onSeeAllTransactionsClick: () -> Unit = {},
     viewModel: HomeViewModel = koinViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -61,9 +62,7 @@ fun HomeScreen(
     HomeContent(
         uiState = uiState,
         onAddTransactionClick = viewModel::onAddTransactionClick,
-        onSeeAllTransactionsClick = {
-            // TODO: navigate to full transactions list
-        }
+        onSeeAllTransactionsClick = onSeeAllTransactionsClick
     )
 
     if (uiState.isAddTransactionSheetVisible) {

@@ -8,6 +8,11 @@ import com.mjapa21.smartwallet.domain.usecases.GetCardDetailsUseCase
 import com.mjapa21.smartwallet.domain.usecases.GetTransactionsUseCase
 import com.mjapa21.smartwallet.domain.usecases.GetUserUseCase
 import com.mjapa21.smartwallet.domain.usecases.SaveTransactionUseCase
+import com.mjapa21.smartwallet.presentation.pages.shared.format.formatBalance
+import com.mjapa21.smartwallet.presentation.pages.shared.format.formatCurrency
+import com.mjapa21.smartwallet.presentation.pages.shared.format.formatSignedAmount
+import com.mjapa21.smartwallet.presentation.pages.shared.format.formatToday
+import com.mjapa21.smartwallet.presentation.pages.shared.format.toShortDate
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -17,9 +22,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import kotlin.math.abs
 
 /** One-time occurrences */
@@ -188,31 +190,6 @@ class HomeViewModel(
         }
     }
 
-    // ---- Formatting ----
-
-    private fun formatToday(): String {
-        val formatter = SimpleDateFormat("EEEE, d MMMM", Locale.getDefault())
-        return formatter.format(Date())
-    }
-
-    private fun Double.formatCurrency(): String {
-        return "₾" + "%,.2f".format(Locale.US, this)
-    }
-
-    private fun Double.formatSignedAmount(): String {
-        val formatted = (abs(this)).formatCurrency()
-        return if (this >= 0) "+$formatted" else "-$formatted"
-    }
-
-    private fun Double.formatBalance(): String {
-        return if (this < 0) formatSignedAmount() else formatCurrency()
-    }
-
-    private fun Long.toShortDate(): String {
-        // date is epoch millis (Long) — so we can wrap directly in Date() for formatting
-        val formatter = SimpleDateFormat("MMM d", Locale.getDefault())
-        return formatter.format(Date(this))
-    }
 
     private fun CardDetails.toCardInfo(): CardInfo {
         return CardInfo(
