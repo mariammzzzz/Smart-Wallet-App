@@ -10,5 +10,5 @@ data class TransactionDbo(
     val id: Int = 0,
     val name: String,
     val amount: Double,
-    val date: Long //todo check this
+    val date: Long
 )
