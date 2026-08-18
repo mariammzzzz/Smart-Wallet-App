@@ -118,10 +118,19 @@ class LoginViewModel(private val saveUserWithCardUseCase: SaveUserWithCardUseCas
             state.name.isBlank() -> "Please enter your name"
             state.cardNumber.length < CARD_NUMBER_LENGTH -> "Card number must contain $CARD_NUMBER_LENGTH digits"
             state.cvv.length < CVV_LENGTH -> "Enter a valid CVV"
-            state.expiryDate.length != EXPIRY_DATE_LENGTH -> "Enter expiry date as MM/YY"
             state.monthlyIncome.isBlank() || state.monthlyIncome.toDoubleOrNull() == null -> "Please enter your monthly income"
-            else -> null
+            else -> validateExpiryDate(state.expiryDate)
         }
+    }
+
+    private fun validateExpiryDate(expiryDate: String): String? {
+        if (expiryDate.length != EXPIRY_DATE_LENGTH) return "Enter expiry date as MM/YY"
+        val month = expiryDate.substring(0, 2).toIntOrNull()
+
+        if (month == null || month !in 1..12) {
+            return "Enter a valid month in expiry date"
+        }
+        return null
     }
 
 

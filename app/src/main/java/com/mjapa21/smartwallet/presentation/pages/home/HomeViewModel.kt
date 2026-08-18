@@ -85,7 +85,7 @@ class HomeViewModel(
 
                     _uiState.update { current ->
                         current.copy(
-                            userName = user.name,
+                            userName = user.name.uppercase(),
                             currentDate = formatToday(),
                             cardInfo = card?.toCardInfo(),
                             balanceInfo = BalanceInfo(
@@ -220,8 +220,8 @@ class HomeViewModel(
                 "You don't have enough money"
             )
 
-            spentPercentage >= 80 -> BalanceInformativeMessage.Warning(
-                "You've already spent more than 80% of your income"
+            spentPercentage >= BUDGET_WARNING_LIMIT_PERCENTAGE -> BalanceInformativeMessage.Warning(
+                "${BUDGET_WARNING_LIMIT_PERCENTAGE}% or more of your budget is already spent"
             )
 
             else -> null
@@ -230,5 +230,6 @@ class HomeViewModel(
 
     companion object {
         const val RECENT_TRANSACTION_LIMIT = 3
+        const val BUDGET_WARNING_LIMIT_PERCENTAGE = 80
     }
 }
