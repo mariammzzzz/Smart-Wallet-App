@@ -5,8 +5,9 @@ data class HomeUiState(
     val currentDate: String = "",
     val cardInfo: CardInfo? = null,
     val balanceInfo: BalanceInfo? = null,
+    val balanceInformativeMessage: BalanceInformativeMessage? = null,
     val recentTransactions: List<TransactionInfo>? = null,
-    val isAddTransactionSheetVisible: Boolean = false
+    val isAddTransactionSheetVisible: Boolean = false,
 ) {
     companion object {
         //Mock ui state object for the HomeScreenPreview
@@ -23,6 +24,9 @@ data class HomeUiState(
                 monthlyExpenses = "₾0.00",
                 balance = "₾0.00",
                 spentPercentage = 0
+            ),
+            balanceInformativeMessage = BalanceInformativeMessage.Warning(
+                "You've already spent 80% of your income this month."
             ),
             recentTransactions = listOf(
                 TransactionInfo(
@@ -66,3 +70,11 @@ data class TransactionInfo(
     val date: String,
     val id: String? = null,
 )
+
+sealed interface BalanceInformativeMessage {
+    val message: String
+
+    data class Negative(override val message: String) : BalanceInformativeMessage
+    data class Warning(override val message: String) : BalanceInformativeMessage
+}
+

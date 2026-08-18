@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -104,7 +105,10 @@ fun HomeContent(
         ) {
             WelcomeHeader(userName = uiState.userName, currentDate = uiState.currentDate)
             CreditCard(cardInfo = uiState.cardInfo)
-            BalanceSummary(balanceInfo = uiState.balanceInfo)
+            BalanceSummary(
+                balanceInfo = uiState.balanceInfo,
+                informativeMessage = uiState.balanceInformativeMessage
+            )
             RecentTransactionsSection(
                 transactions = uiState.recentTransactions,
                 onSeeAllClick = onSeeAllTransactionsClick
@@ -210,7 +214,10 @@ private fun formatCardNumber(cardNumber: String): String {
 }
 
 @Composable
-private fun BalanceSummary(balanceInfo: BalanceInfo?) {
+private fun BalanceSummary(
+    balanceInfo: BalanceInfo?,
+    informativeMessage: BalanceInformativeMessage?
+) {
     if (balanceInfo == null) return
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -238,7 +245,39 @@ private fun BalanceSummary(balanceInfo: BalanceInfo?) {
                 BalanceStat(label = "Expenses", value = balanceInfo.monthlyExpenses)
                 BalanceStat(label = "Spent", value = "${balanceInfo.spentPercentage}%")
             }
+
+            if (informativeMessage != null) {
+                Spacer(modifier = Modifier.height(12.dp))
+                BalanceMessageRow(informativeMessage)
+            }
         }
+    }
+}
+
+@Composable
+private fun BalanceMessageRow(informativeMessage: BalanceInformativeMessage) {
+    val (iconRes, tint) = when (informativeMessage) {
+        is BalanceInformativeMessage.Negative ->
+            R.drawable.ic_exclamation to MaterialTheme.colorScheme.error
+        is BalanceInformativeMessage.Warning ->
+            R.drawable.ic_warning to MaterialTheme.colorScheme.tertiary
+    }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Icon(
+            painter = painterResource(id = iconRes),
+            contentDescription = null, // decorative, the text next to it carries the meaning
+            tint = tint,
+            modifier = Modifier.size(18.dp)
+        )
+        Text(
+            text = informativeMessage.message,
+            style = MaterialTheme.typography.bodySmall,
+            color = tint
+        )
     }
 }
 

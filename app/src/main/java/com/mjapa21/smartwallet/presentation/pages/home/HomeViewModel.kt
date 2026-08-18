@@ -94,9 +94,13 @@ class HomeViewModel(
                                 balance = balance.formatBalance(),
                                 spentPercentage = spentPercentage
                             ),
+                            balanceInformativeMessage = resolveBalanceMessage(
+                                balance,
+                                spentPercentage
+                            ),
                             recentTransactions = transactions
                                 .sortedByDescending { it.date }
-                                .take(4)
+                                .take(RECENT_TRANSACTION_LIMIT)
                                 .map { it.toTransactionInfo() }
                         )
                     }
@@ -205,5 +209,26 @@ class HomeViewModel(
             amount = amount.formatSignedAmount(),
             date = date.toShortDate()
         )
+    }
+
+    private fun resolveBalanceMessage(
+        balance: Double,
+        spentPercentage: Int
+    ): BalanceInformativeMessage? {
+        return when {
+            balance < 0 -> BalanceInformativeMessage.Negative(
+                "You don't have enough money"
+            )
+
+            spentPercentage >= 80 -> BalanceInformativeMessage.Warning(
+                "You've already spent more than 80% of your income"
+            )
+
+            else -> null
+        }
+    }
+
+    companion object {
+        const val RECENT_TRANSACTION_LIMIT = 3
     }
 }
